@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Painel - Claude CLI Orquestrador</title>
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Claude CLI<br/>Orquestrador</h1>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">
+        <span>Projetos</span>
+        <button id="btn-browse" class="btn-icon" title="Abrir pasta">+</button>
+      </div>
+      <div id="project-list" class="project-list"></div>
+    </div>
+
+    <div class="sidebar-section grow">
+      <div class="sidebar-section-title"><span>Sessoes do sistema</span></div>
+      <div id="global-agents-list" class="project-list muted"></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="tabs" id="session-tabs"></div>
+
+    <div class="chat-area" id="chat-area">
+      <div class="empty-state" id="empty-state">
+        <p>Abra uma pasta de projeto e inicie uma conversa.</p>
+      </div>
+    </div>
+
+    <form class="composer" id="composer" style="display:none">
+      <textarea id="composer-input" placeholder="Mensagem... (Enter envia, Shift+Enter quebra linha)" rows="2"></textarea>
+      <button type="submit" id="composer-send">Enviar</button>
+    </form>
+  </main>
+
+  <aside class="activity-panel">
+    <div class="activity-tabs">
+      <button class="activity-tab active" data-tab="live">Atividade ao vivo</button>
+      <button class="activity-tab" data-tab="agy">Historico agy</button>
+    </div>
+    <div class="activity-body" id="activity-live"></div>
+    <div class="activity-body" id="activity-agy" style="display:none"></div>
+  </aside>
+
+</div>
+
+<div id="browse-modal" class="modal-backdrop" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="browse-path">Selecionar pasta</span>
+      <button id="browse-close" class="btn-icon">x</button>
+    </div>
+    <div id="browse-list" class="browse-list"></div>
+    <div class="modal-footer">
+      <button id="browse-choose" class="btn-primary">Abrir esta pasta</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

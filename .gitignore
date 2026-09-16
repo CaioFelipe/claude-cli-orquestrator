@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+dashboard/state.json
+dashboard/sessions/*.jsonl
+dashboard/.venv/
