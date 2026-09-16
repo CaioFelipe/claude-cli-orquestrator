@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-cli-orquestrator",
+  "description": "Marketplace de plugin unico: claude-cli-orquestrator (delega trabalho mecanico ao agy CLI).",
+  "owner": {
+    "name": "Caio Felipe"
+  },
+  "plugins": [
+    {
+      "name": "claude-cli-orquestrator",
+      "source": "./"
+    }
+  ]
+}
