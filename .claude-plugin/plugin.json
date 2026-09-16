@@ -1,0 +1,11 @@
+{
+  "name": "claude-cli-orquestrator",
+  "description": "Deixa o Claude Code pensar e planejar, delegando analise de arquivos, edicoes e pesquisa para o Antigravity CLI (agy / modelos Gemini) rodando como subagentes locais em paralelo.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Caio Felipe"
+  },
+  "homepage": "https://github.com/CaioFelipe/claude-cli-orquestrator",
+  "license": "MIT",
+  "keywords": ["orchestrator", "gemini", "antigravity", "agy", "subagents", "cli-bridge"]
+}

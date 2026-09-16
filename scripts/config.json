@@ -1,0 +1,31 @@
+{
+  "profiles": {
+    "mock": {
+      "command": "python",
+      "args_template": [
+        "-c",
+        "import sys; print('=== MOCK AGY OUTPUT ===\\nTask received: ' + sys.argv[1])",
+        "{prompt}"
+      ],
+      "env": {},
+      "description": "Perfil simulado para testar o pipeline sem gastar cota real do agy."
+    },
+    "agy": {
+      "command": "%LOCALAPPDATA%\\agy\\bin\\agy.exe",
+      "args_template": [
+        "-p",
+        "{prompt}",
+        "--dangerously-skip-permissions",
+        "--output-format",
+        "json"
+      ],
+      "env": {},
+      "description": "Antigravity CLI (modelos Gemini) rodando a tarefa de forma nao-interativa na conta local ja autenticada."
+    }
+  },
+  "default_effort": "medium",
+  "default_timeout_seconds": 600,
+  "tasks_directory": ".agy-tasks",
+  "heavy_effort": "high",
+  "micro_effort": "low"
+}
