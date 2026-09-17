@@ -49,22 +49,60 @@ def _save_cache(tasks_dir: Path, data: Dict[str, Any]) -> None:
 
 def _parse_consumption_percent(raw_text: str) -> float:
     """
-    Best-effort: procura por algo como '87%' ou '"consumption_percent": 87.5'
-    na saida do 'agy -p "/usage"'. O formato exato do agy pode mudar entre
-    versoes, entao isso e apenas uma estimativa - nunca trate como exato.
+    Extrai o CONSUMO (%) real da saida do 'agy -p "/usage" --output-format json'.
+
+    Importante: o agy nao expoe "quanto foi consumido" - ele expoe
+    "remaining_fraction" (fracao LIVRE, 0..1) por bucket, dentro de
+    command.data.groups[].buckets[]. Ex.: remaining_fraction=0.93 significa
+    93% de cota LIVRE, ou seja, so 7% consumido. E preciso inverter
+    (consumo = 1 - remaining_fraction), nunca ler "NN%" do texto livre em
+    "response" como se fosse consumo - aquele "NN%" tambem e a fracao
+    restante (ex.: "Weekly Limit Remaining 93%" == 93% livre).
+
+    Estrategia:
+    1. Parseia o JSON estruturado e pega o PIOR caso (menor remaining_fraction
+       entre todos os buckets de todos os groups) - e o bucket mais consumido,
+       que e o que deve decidir o guardrail.
+    2. Fallback se o JSON nao vier no formato esperado: regex sobre
+       '"remaining_fraction": <numero>' pegando o minimo entre todas as
+       ocorrencias no texto bruto, aplicando a mesma inversao.
+    3. Se nada puder ser extraido de forma confiavel, retorna -1.0 (o chamador
+       trata como "nao foi possivel medir" e nunca bloqueia).
     """
-    match = re.search(r'"consumption_percent"\s*:\s*([0-9.]+)', raw_text)
-    if match:
-        return float(match.group(1))
-    match = re.search(r'(\d{1,3}(?:\.\d+)?)\s*%', raw_text)
-    if match:
-        return float(match.group(1))
+    min_remaining = None
+
+    try:
+        data = json.loads(raw_text)
+        groups = data.get("command", {}).get("data", {}).get("groups", [])
+        for group in groups:
+            for bucket in group.get("buckets", []):
+                frac = bucket.get("remaining_fraction")
+                if isinstance(frac, (int, float)):
+                    if min_remaining is None or frac < min_remaining:
+                        min_remaining = frac
+    except Exception:
+        pass
+
+    if min_remaining is None:
+        fractions = re.findall(r'"remaining_fraction"\s*:\s*([0-9.]+)', raw_text)
+        if fractions:
+            try:
+                min_remaining = min(float(f) for f in fractions)
+            except Exception:
+                min_remaining = None
+
+    if min_remaining is not None:
+        min_remaining = max(0.0, min(1.0, min_remaining))
+        return (1.0 - min_remaining) * 100.0
+
     return -1.0
 
 
 def get_agy_usage(agy_command: str, tasks_dir: Path, force_refresh: bool = False) -> Dict[str, Any]:
     """
     Retorna {consumption_percent, status, parse_ok, stale, raw_text}.
+    consumption_percent e o CONSUMO real (0-100), ja invertido a partir do
+    remaining_fraction (livre) que o agy expoe - ver _parse_consumption_percent.
     consumption_percent == -1 significa "nao foi possivel medir" (nunca bloqueia).
     """
     cache = _load_cache(tasks_dir)
